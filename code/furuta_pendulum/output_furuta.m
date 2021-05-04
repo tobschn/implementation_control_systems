@@ -1,4 +1,4 @@
-function [y] = output_simple(x, u)
+function [y] = output_furuta(x, u)
 
     % this expects a matrix x with number of rows corresponding to data
     % points and number of columns corresponding to states

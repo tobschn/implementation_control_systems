@@ -1,4 +1,4 @@
-function [r] = setpoint_simple(t)
+function [r] = setpoint_furuta(t)
 
     r = 0;
 

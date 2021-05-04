@@ -1,4 +1,4 @@
-function [x, t] = dynamics_simple(u, tend, x0)
+function [x, t] = dynamics_furuta(u, tend, x0)
 
     % modelling constants
     alpha = 0.0033472;
