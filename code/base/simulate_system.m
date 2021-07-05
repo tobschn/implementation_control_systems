@@ -1,5 +1,5 @@
 function [t, x, y, u, s] = simulate_system( ...
-    f, g, c, r, t_end, ctl_period, ctl_delay, x0, u0, z0)
+    f, g, c, r, t_end, ctl_period, ctl_delay, x0, u0, z0, sen_data, act_data)
     %
     % SIMULATE_SYSTEM (f, g, c, r, t_end, ctl_period, ctl_delay, x0, u0)
     %
