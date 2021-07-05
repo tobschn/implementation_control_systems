@@ -27,7 +27,7 @@ c = @ctl_sol_withswingup_sat05;
 r = @setpoint_furuta;
 
 [t, x, y, u, s] = simulate_system(f, g, c, r, t_end, ...
-    controller_period, computational_delay, x0, u0, z0);
+    controller_period, computational_delay, x0, u0, z0, sd, ad);
 
 plot_results(t, x, y, u, s, t_end, controller_period, computational_delay, 0);
 perf = compute_performance(t, y, s)
