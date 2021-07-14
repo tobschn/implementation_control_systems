@@ -1,5 +1,6 @@
 function [t, x, y, u, s] = simulate_system( ...
-    f, g, c, r, t_end, ctl_period, ctl_delay, x0, u0, z0)
+    f, g, c, r, t_end, ctl_period, ctl_delay, x0, u0, z0, ...
+    channel, initVector)
     %
     % SIMULATE_SYSTEM (f, g, c, r, t_end, ctl_period, ctl_delay, x0, u0)
     %
@@ -37,6 +38,9 @@ function [t, x, y, u, s] = simulate_system( ...
     %     x0:         initial plant state
     %     u0:         initial control signal
     %     z0:         initial controller state
+    %     channel:    probability channel 
+    %                        function [rec] = channel(firstUse, initVector)
+    %     initVector: probability vector for probability function 
     %
     % OUTPUT:
     %
@@ -60,6 +64,8 @@ function [t, x, y, u, s] = simulate_system( ...
     x = [];
     y = [];
     u = [];
+    %recActRes = [];
+    %recSenRes = [];
 
     % how many periods should we simulate
     num_periods = ceil(t_end/ctl_period);
@@ -68,13 +74,21 @@ function [t, x, y, u, s] = simulate_system( ...
     x0p = x0; % initial state setup
     u0p = u0; % initial control value
     z0p = z0; % initial controller state
-    t0p = 0; % time at the start of the period
+    t0p = 0; % time at the start of the period (0 means also first execution)
 
     for p = 1:num_periods
 
         sp = r(t0p); % get setpoint with function r
         y0p = g(x0p', u0p'); % get output value (reading sensor data)u
-        [ctl_signal, zp] = c(sp, y0p, z0p, ctl_period); % get u with function c
+        
+        %determines if the actuation data was/will be transmitted and received correctly
+        if(t0p == 0) %first execution
+            recActuator = channel(1, initVector);
+            %recSensor = 
+        else
+            recActuator = channel(0, initVector);
+        end
+        [ctl_signal, zp] = c(sp, y0p, z0p, ctl_period, recActuator); % get u with function c
         
         % if I have computational delay I need to split the period in two
         % parts: one with the old control value and one with the new
@@ -125,6 +139,9 @@ function [t, x, y, u, s] = simulate_system( ...
     x = [x; xp];
     y = [y; yp];
     u = [u; up];
+    %recActRes = [recActRes; recActuator]; could be used for diagrams about
+    %network errors
+    
 
     % preparation for next step
     t0p = t0p + ctl_period; % we will start a new period

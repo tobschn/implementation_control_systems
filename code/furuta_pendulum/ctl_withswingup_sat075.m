@@ -45,6 +45,7 @@ function [u, z] = ctl_withswingup_sat075(setpoint, y, z_old, period, rec)
         	% is not success, lets keep the control signal to previously
         	% computed one
         	u = u_old1;
+            z(1) = y;
     	end    
 end
 
@@ -74,7 +75,7 @@ function [u, z] = ctl_linearisation(setpoint, y, z_old, period, rec)
         %if not, keep the previously computed control signal for this
         %iteration also
         u = u_old2;
-        
+        z = y;
     end  
 end
 
