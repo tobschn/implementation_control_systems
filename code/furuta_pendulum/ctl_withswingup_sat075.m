@@ -2,7 +2,7 @@
 % The controller is the same but the clamping at the end has a wider range
 % of values but that is the only difference
 
-function [u, z] = ctl_withswingup_sat075(setpoint, y, z_old, period)
+function [u, z] = ctl_withswingup_sat075(setpoint, y, z_old, period, rec)
 
     % controller parameters
     u_min = -0.75;
@@ -25,14 +25,30 @@ function [u, z] = ctl_withswingup_sat075(setpoint, y, z_old, period)
 		v = 0;
 	else 
 		% energy has good value and position is close to the equilibrium
-		v = ctl_linearisation(setpoint, y, z_old, period);
+		v = ctl_linearisation(setpoint, y, z_old, period, rec);
 	end
 	
-	u = min(max(u_min, v),u_max);
-	z(1) = y;
+	 persistent u_old1; % Introducing new variable to keep track of the previous control signal value
+    	 if isempty(u_old1)
+         	u_old1 = 0;
+    	 end
+    
+    
+    	% if the state is good ( in terms of channel) / if the transmission is
+    	% success, control signal will be computed properly
+    	if (rec == 1)    
+        	u = min(max(u_min, v),u_max);
+        	z(1) = y;
+        	u_old1 = u;
+    	else
+        	% if the state is bad ( in terms of channel)/ if the transmission
+        	% is not success, lets keep the control signal to previously
+        	% computed one
+        	u = u_old1;
+    	end    
 end
 
-function [u, z] = ctl_linearisation(setpoint, y, z_old, period)
+function [u, z] = ctl_linearisation(setpoint, y, z_old, period, rec)
     % PD controller
     kpp = 0.06/period;      % kp of position
     kpv = -0.002/period;    % kp of velocity
@@ -43,10 +59,18 @@ function [u, z] = ctl_linearisation(setpoint, y, z_old, period)
     
     v = kpv * ev + kpp * ep;
     
-    % generate output
-    u = v;
-    z = y;
-    
+    % if the state is good ( in terms of channel) / if the transmission is
+    % success, control signal will be computed properly
+    if (rec == 1)
+        u = v;
+        z = y;
+        u_old2 = u;
+    else
+        %if not, keep the previously computed control signal for this
+        %iteration also
+        u = u_old2;
+        
+    end  
 end
 
 function [res] = sign_(val)
