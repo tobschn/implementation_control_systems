@@ -59,6 +59,11 @@ function [u, z] = ctl_linearisation(setpoint, y, z_old, period, rec)
     
     v = kpv * ev + kpp * ep;
     
+    persistent u_old2; % Introducing new variable to keep track of the previous control signal value
+    if isempty(u_old2)
+           u_old2 = 0;
+    end  
+    
     % if the state is good ( in terms of channel) / if the transmission is
     % success, control signal will be computed properly
     if (rec == 1)
