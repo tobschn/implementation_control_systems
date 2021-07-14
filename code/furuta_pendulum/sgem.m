@@ -1,13 +1,14 @@
 % simplified gilbert-elliott channel
-% if first use, set parameter p
-% otherwise ignore parameter and use already set p
+% if first use, set parameter firstUse, a, b and i
+% otherwise the functions ignores those parameters and
+% uses the already set ones
 % a alpha, b beta, i initial state (0 bad, 1 good)
 % alpha transition prob of bad->bad
 
 function rec = sgem(firstUse, a, b, i)
-	global alpha;
-	global beta;
-	global state;
+	persistent alpha;
+	persistent beta;
+	persistent state;
 	if firstUse
 		alpha = a;
 		beta = b;
