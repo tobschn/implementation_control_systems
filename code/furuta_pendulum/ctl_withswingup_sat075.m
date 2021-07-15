@@ -29,24 +29,24 @@ function [u, z] = ctl_withswingup_sat075(setpoint, y, z_old, period, rec)
 	end
 	
 	 persistent u_old1; % Introducing new variable to keep track of the previous control signal value
-    	 if isempty(u_old1)
-         	u_old1 = 0;
-    	 end
-    
-    
-    	% if the state is good ( in terms of channel) / if the transmission is
-    	% success, control signal will be computed properly
-    	if (rec == 1)    
-        	u = min(max(u_min, v),u_max);
-        	z(1) = y;
-        	u_old1 = u;
-    	else
-        	% if the state is bad ( in terms of channel)/ if the transmission
-        	% is not success, lets keep the control signal to previously
-        	% computed one
-        	u = u_old1;
-            z(1) = y;
-    	end    
+	 if isempty(u_old1)
+		u_old1 = 0;
+	 end
+
+
+	% if the state is good ( in terms of channel) / if the transmission is
+	% success, control signal will be computed properly
+	if (rec == 1)    
+		u = min(max(u_min, v),u_max);
+		z(1) = y;
+		u_old1 = u;
+	else
+		% if the state is bad ( in terms of channel)/ if the transmission
+		% is not success, lets keep the control signal to previously
+		% computed one
+		u = u_old1;
+		z(1) = z_old(1);
+	end    
 end
 
 function [u, z] = ctl_linearisation(setpoint, y, z_old, period, rec)

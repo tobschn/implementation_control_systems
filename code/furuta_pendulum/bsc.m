@@ -4,7 +4,7 @@
 % p: probability to receive correctly
 
 function rec = bsc(firstUse, p)
-	global prob;
+	persistent prob;
 	if firstUse
 		prob = p;
 	end
