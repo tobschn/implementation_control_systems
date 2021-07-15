@@ -1,4 +1,4 @@
-function [t, x, y, u, s] = simulate_system( ...
+function [t, x, y, u, s, recActRes, recSenRes, t_controller] = simulate_system( ...
     f, g, c, r, t_end, ctl_period, ctl_delay, x0, u0, z0, ...
     channel, initVector)
     %
@@ -64,8 +64,9 @@ function [t, x, y, u, s] = simulate_system( ...
     x = [];
     y = [];
     u = [];
-    %recActRes = [];
-    %recSenRes = [];
+    t_controller = [0:ctl_period:t_end-ctl_period];
+    recActRes = [];
+    recSenRes = [];
 
     % how many periods should we simulate
     num_periods = ceil(t_end/ctl_period);
@@ -75,6 +76,8 @@ function [t, x, y, u, s] = simulate_system( ...
     u0p = u0; % initial control value
     z0p = z0; % initial controller state
     t0p = 0; % time at the start of the period (0 means also first execution)
+    
+    old_z = z0;
 
     for p = 1:num_periods
 
@@ -83,12 +86,26 @@ function [t, x, y, u, s] = simulate_system( ...
         
         %determines if the actuation data was/will be transmitted and received correctly
         if(t0p == 0) %first execution
-            recActuator = channel(1, initVector);
-            %recSensor = 
+            recSensor = channel(1, initVector);
+            % = 
         else
-            recActuator = channel(0, initVector);
+            recSensor = channel(0);
         end
-        [ctl_signal, zp] = c(sp, y0p, z0p, ctl_period, recActuator); % get u with function c
+        
+        [ctl_signal, zp] = c(sp, y0p, z0p, ctl_period, recSensor); % get u with function c
+        
+        
+        recActuator = channel(0);
+        if recActuator == 0
+            ctl_signal = 0;
+            zp = old_z;
+        end
+        
+        old_z = zp; %save the old zp for the next iteration
+            
+        
+        
+       
         
         % if I have computational delay I need to split the period in two
         % parts: one with the old control value and one with the new
@@ -139,7 +156,8 @@ function [t, x, y, u, s] = simulate_system( ...
     x = [x; xp];
     y = [y; yp];
     u = [u; up];
-    %recActRes = [recActRes; recActuator]; could be used for diagrams about
+    recActRes = [recActRes; recActuator]; %could be used for diagrams about
+    recSenRes = [recSenRes; recSensor];
     %network errors
     
 

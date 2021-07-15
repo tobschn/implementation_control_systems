@@ -1,4 +1,4 @@
-function [] = plot_results(t, x, y, u, s, t_end, ctl_period, ctl_delay, annotate)
+function [] = plot_results(t, x, y, u, s, t_end, ctl_period, ctl_delay, annotate, recActRes, recSenRes, t_controller)
 
     % annotate determine if you want to have vertical lines
     % for periods and computational delays
@@ -10,7 +10,7 @@ function [] = plot_results(t, x, y, u, s, t_end, ctl_period, ctl_delay, annotate
     %f.Position;
     
     % first subplot: output and setpoint
-    subplot(3,1,1);
+    subplot(4,1,1);
     
         hold on; grid on;
         plot(t, y, 'o', 'LineWidth', 2);
@@ -19,7 +19,7 @@ function [] = plot_results(t, x, y, u, s, t_end, ctl_period, ctl_delay, annotate
         legend('y','r');
         xlim([0 t_end]);
         
-    subplot(3,1,2);
+    subplot(4,1,2);
     
         hold on; grid on;
         plot(t, x, 'o', 'LineWidth', 2);
@@ -27,7 +27,7 @@ function [] = plot_results(t, x, y, u, s, t_end, ctl_period, ctl_delay, annotate
         legend("x" + string(1:size(x,2)));
         xlim([0 t_end]);
         
-    subplot(3,1,3);
+    subplot(4,1,3);
     
         hold on;  grid on;
         plot(t, u, 'o', 'LineWidth', 2);
@@ -35,6 +35,14 @@ function [] = plot_results(t, x, y, u, s, t_end, ctl_period, ctl_delay, annotate
         legend('u');
         xlim([0 t_end]);
         
+    subplot(4,1,4);
+    
+        hold on; grid on;
+        plot(t_controller, recActRes, '.', 'LineWidth', 1.3);
+        plot(t_controller, recSenRes, '.', 'LineWidth', 1.3);
+        title('Network Errors (Actuator and Sensor)');
+        legend("Actuator" , "Sensor");
+        xlim([0 t_end]);
         if (annotate)
             
             for p = 1:round(t_end/ctl_period)
