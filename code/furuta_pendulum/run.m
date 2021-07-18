@@ -16,11 +16,12 @@ addpath('../base');
 t_end = 3;
 x0 = [0; 0; pi; 0];
 u0 = 0;
-z0 = 0; % state of the controller
-rng(80);   %set the seed for the random functions here
+z0 = 0;     % state of the controller
+
+rng(50);    %set the seed for the random functions here (channel)
 
 controller_period = 0.01;
-computational_delay = 0.005;
+computational_delay = 0.00;
 
 f = @dynamics_furuta;
 g = @output_furuta;
@@ -36,11 +37,13 @@ r = @setpoint_furuta;
 % beta =  0.85;          %transistion probability to go from good->good
 % initState = 1;         %initial state
 % 
+% errorHandling = 0;  % 0 = Zero strategy, 1 = Hold strategy
 % initVector = [alpha; beta; initState];
 
-%alternative channel
+%alternative Erasure channel
 channel = @bsc;
 p = 0.95;           %probability to receive correctly
+errorHandling = 0;  % 0 = Zero strategy, 1 = Hold strategy
 initVector = p;
 
 
@@ -48,7 +51,7 @@ initVector = p;
 
 [t, x, y, u, s, recActRes, recSenRes, t_controller] = simulate_system(f, g, c, r, t_end, ...
     controller_period, computational_delay, x0, u0, z0, ...
-    channel, initVector);
+    channel, initVector, errorHandling);
 
 plot_results(t, x, y, u, s, t_end, controller_period, computational_delay, 0, recActRes, recSenRes, t_controller);
 perf = compute_performance(t, y, s);

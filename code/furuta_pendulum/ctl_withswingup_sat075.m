@@ -2,7 +2,7 @@
 % The controller is the same but the clamping at the end has a wider range
 % of values but that is the only difference
 
-function [u, z] = ctl_withswingup_sat075(setpoint, y, z_old, period, rec)
+function [u, z] = ctl_withswingup_sat075(setpoint, y, z_old, period, rec, errorHandling)
 
     % controller parameters
     u_min = -0.75;
@@ -25,7 +25,7 @@ function [u, z] = ctl_withswingup_sat075(setpoint, y, z_old, period, rec)
 		v = 0;
 	else 
 		% energy has good value and position is close to the equilibrium
-		v = ctl_linearisation(setpoint, y, z_old, period, rec);
+		v = ctl_linearisation(setpoint, y, z_old, period, rec, errorHandling);
 	end
 	
 	 persistent u_old1; % Introducing new variable to keep track of the previous control signal value
@@ -42,14 +42,22 @@ function [u, z] = ctl_withswingup_sat075(setpoint, y, z_old, period, rec)
 		u_old1 = u;
 	else
 		% if the state is bad ( in terms of channel)/ if the transmission
-		% is not success, lets keep the control signal to previously
-		% computed one
-		u = u_old1;
-		z(1) = z_old(1);
+		% is not success, decide which error handling strategy should be
+		% used
+        if(errorHandling == 0)
+            %set the control signal to 0 (strategy zero)
+            u = 0;
+            z(1) = z_old(1);
+        else
+            %lets keep the control signal to previously
+            %computed one (strategy hold)
+            u = u_old1;
+            z(1) = z_old(1);
+        end
 	end    
 end
 
-function [u, z] = ctl_linearisation(setpoint, y, z_old, period, rec)
+function [u, z] = ctl_linearisation(setpoint, y, z_old, period, rec, errorHandling)
     % PD controller
     kpp = 0.06/period;      % kp of position
     kpv = -0.002/period;    % kp of velocity
@@ -72,10 +80,17 @@ function [u, z] = ctl_linearisation(setpoint, y, z_old, period, rec)
         z = y;
         u_old2 = u;
     else
-        %if not, keep the previously computed control signal for this
-        %iteration also
-        u = u_old2;
-        z = y;
+        %if not, decide which error handling strategy should be used
+        if(errorHandling == 0)
+            %set the control signal to 0 (strategy zero)
+            u = 0;
+            z(1) = z_old(1);
+        else
+            %lets keep the control signal to previously
+            %computed one (strategy hold)
+            u = u_old1;
+            z(1) = z_old(1);
+        end
     end  
 end
 

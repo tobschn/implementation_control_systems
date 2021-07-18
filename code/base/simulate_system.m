@@ -1,6 +1,6 @@
 function [t, x, y, u, s, recActRes, recSenRes, t_controller] = simulate_system( ...
     f, g, c, r, t_end, ctl_period, ctl_delay, x0, u0, z0, ...
-    channel, initVector)
+    channel, initVector, errorHandling)
     %
     % SIMULATE_SYSTEM (f, g, c, r, t_end, ctl_period, ctl_delay, x0, u0)
     %
@@ -84,20 +84,27 @@ function [t, x, y, u, s, recActRes, recSenRes, t_controller] = simulate_system( 
         sp = r(t0p); % get setpoint with function r
         y0p = g(x0p', u0p'); % get output value (reading sensor data)u
         
-        %determines if the actuation data was/will be transmitted and received correctly
+        %determines if the sensor data was/will be transmitted and received
+        %correctly (sensor->controller)
         if(t0p == 0) %first execution
             recSensor = channel(1, initVector);
-            % = 
         else
             recSensor = channel(0);
         end
         
-        [ctl_signal, zp] = c(sp, y0p, z0p, ctl_period, recSensor); % get u with function c
+        [ctl_signal, zp] = c(sp, y0p, z0p, ctl_period, recSensor, errorHandling); % get u with function c
         
-        
+        %compute if there is data loss from controller -> actuator
         recActuator = channel(0);
         if recActuator == 0
-            ctl_signal = 0;
+            if(errorHandling == 0)
+                %set the control signal to 0 (strategy zero)
+                ctl_signal = 0;
+            else
+                %lets keep the control signal to previously
+                %computed one (strategy hold)
+                u = u_old1;
+            end
             zp = old_z;
         end
         
