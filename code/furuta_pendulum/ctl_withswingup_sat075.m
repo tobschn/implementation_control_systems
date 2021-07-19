@@ -17,7 +17,7 @@ function [u, z] = ctl_withswingup_sat075(setpoint, y, z_old, period, rec, errorH
 	% normalized energy (from paper)
 	En = 0.5 / c * dy_dt^2 + cos(y) -1;
 	
-	if En < -0.1
+	if En < -0.1 || En > 0.1
 		% modified version from paper to control energy of system
 		v = k * En * sign_(dy_dt * sin(2*y));
 	elseif abs(y) > 0.5
@@ -32,8 +32,7 @@ function [u, z] = ctl_withswingup_sat075(setpoint, y, z_old, period, rec, errorH
 	 if isempty(u_old1)
 		u_old1 = 0;
 	 end
-
-
+	 
 	% if the state is good ( in terms of channel) / if the transmission is
 	% success, control signal will be computed properly
 	if (rec == 1)    

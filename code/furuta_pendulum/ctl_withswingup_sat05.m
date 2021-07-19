@@ -14,7 +14,7 @@ function [u, z] = ctl_withswingup_sat05(setpoint, y, z_old, period)
 	% normalized energy (from paper)
 	En = 0.5 / c * dy_dt^2 + cos(y) -1;
 	
-	if En < -0.1
+	if En < -0.1 || En > 0.1
 		% modified version from paper to control energy of system
 		v = k * En * sign_(dy_dt * sin(2*y));
 	elseif abs(y) > 0.5
