@@ -88,7 +88,7 @@ function [u, z] = ctl_linearisation(setpoint, y, z_old, period, rec, errorHandli
         else
             %lets keep the control signal to previously
             %computed one (strategy hold)
-            u = u_old1;
+            u = u_old2;
             z(1) = z_old(1);
         end
     end  

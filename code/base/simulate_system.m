@@ -78,6 +78,7 @@ function [t, x, y, u, s, recActRes, recSenRes, t_controller] = simulate_system( 
     t0p = 0; % time at the start of the period (0 means also first execution)
     
     old_z = z0;
+    ctl_signal1 = 0; % Introducing new variable to keep track of the previous control signal value
 
     for p = 1:num_periods
 
@@ -96,18 +97,22 @@ function [t, x, y, u, s, recActRes, recSenRes, t_controller] = simulate_system( 
         
         %compute if there is data loss from controller -> actuator
         recActuator = channel(0);
+      
+
         if recActuator == 0
-            if(errorHandling == 0)
-                %set the control signal to 0 (strategy zero)
-                ctl_signal = 0;
-            else
-                %lets keep the control signal to previously
-                %computed one (strategy hold)
-                u = u_old1;
-            end
-            zp = old_z;
+           if(errorHandling == 0)
+               %set the control signal to 0 (strategy zero)
+               ctl_signal = 0;
+
+           else
+               %lets keep the control signal to previously
+               %computed one (strategy hold)
+               ctl_signal = ctl_signal1;
+           end
+           zp = old_z;
         end
         
+        ctl_signal1 = ctl_signal;
         old_z = zp; %save the old zp for the next iteration
             
         

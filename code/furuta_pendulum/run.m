@@ -43,7 +43,7 @@ r = @setpoint_furuta;
 %alternative Erasure channel
 channel = @bsc;
 p = 0.95;           %probability to receive correctly
-errorHandling = 0;  % 0 = Zero strategy, 1 = Hold strategy
+errorHandling = 1;  % 0 = Zero strategy, 1 = Hold strategy
 initVector = p;
 
 
